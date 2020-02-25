@@ -21,6 +21,7 @@ let fonts = [
     "Segoe Script"
 ]
 
+let range = null
 let currentFont = 'Arial'
 let fontList = document.getElementById("font-list")
 
@@ -45,16 +46,30 @@ for (let font of fonts) {
     })
 
     fontList.appendChild(fontItem)
-
-
 }
 
 fontList.addEventListener("mouseleave", () => {
     document.execCommand("fontName", false, currentFont)
 })
 
-/*
-<div class="font-item">
-    <h1>Arial</h1>
-</div>
-*/
+let editor = document.getElementById("editor")
+editor.addEventListener('blur', (e) => {
+    let selection = window.getSelection()
+    let newRnge = selection.getRangeAt(0)
+})
+
+let fontSize = document.getElementById("font-size")
+fontSize.addEventListener('input', (e) => {
+    let newFontSize = parseInt(e.target.value)
+    if(!isNaN(newFontSize)) {
+        let selection = window.getSelection()
+        selection.removeAllRanges()
+        selection.addRange(range)
+        document.execCommand("fontSize", false, newFontSize)
+    }
+})
+
+fontSize.addEventListener("mousedown", (e) => {
+    let selection = window.getSelection()
+    range = selection.getRangeAt(0)
+})
