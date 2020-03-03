@@ -6,6 +6,23 @@ function italic() {
     document.execCommand("italic")
 }
 
+function copy() {
+    document.execCommand("copy")
+}
+
+function paste() {
+    navigator.clipboard.readText().then(text => {
+        let selection = window.getSelection()
+        let cursor = selection.getRangeAt(0)
+        cursor.insertNode(
+            document.createTextNode(text)
+        )
+        
+        text = text.replace('\n', "<br>")
+
+    })
+}
+
 function changeFont() {
     document.execCommand("fontName", false, "Arial")
 }
@@ -73,3 +90,16 @@ fontSize.addEventListener("mousedown", (e) => {
     let selection = window.getSelection()
     range = selection.getRangeAt(0)
 })
+
+let state = {
+    value: ''
+}
+
+document.getElementById("editor")
+    .addEventListener("keydown", (e) => {
+        e.preventDefault()
+        let key = e.key
+        if(k == 'Enter') key = '<br>'
+        state.value += key
+        editor.innerHTML = state.value
+    })
