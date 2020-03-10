@@ -14,12 +14,10 @@ function paste() {
     navigator.clipboard.readText().then(text => {
         let selection = window.getSelection()
         let cursor = selection.getRangeAt(0)
-        cursor.insertNode(
-            document.createTextNode(text)
-        )
-        
+        let el =  document.createElement('div')
         text = text.replace('\n', "<br>")
-
+        el.innerHTML = text
+        cursor.insertNode(el)
     })
 }
 
