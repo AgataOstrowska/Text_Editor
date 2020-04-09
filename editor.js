@@ -1,37 +1,76 @@
 function Editor(settings) {
-    let el = settings.el;
-    let placeholderTag = null;
-    let cursor = null;
+    let el = settings.el
+    let placeholderTag = null
+    let activeNode = null;
 
-    (function() {
-        if (el.getAttribute("contenteditable") == null) {
+    (function(){
+        if(el.getAttribute("contenteditable") == null) {
             el.setAttribute("contenteditable", "true")
         }
 
         el.innerHTML = ""
-        let placeholderTag = document.createElement('span')
+        placeholderTag = document.createElement('span')
         placeholderTag.textContent = settings.placeholder
-    })()
+        el.appendChild(placeholderTag)
+
+    })();
 
     el.addEventListener('keydown', (e) => {
-       switch(e.key)  {
-           case 'Enter':
-               e.preventDefault()
-               let newEl = addTag()
-               let cursor = getCursor()
-               cursor.surroundContents(newEl)
-               createCursor(newEl)
-            default:
+        switch (e.key) {
+          case 'Enter':
+            e.preventDefault();
+            let newEl = addTag();
+            let cursor = getCursor();
+            let lContent = null;
+
+            if (cursor.startOffset < activeNode.textContent.length) {
+              lContent = activeNode.textContent.substring(
+                cursor.startOffset,
+                activeNode.textContent.length
+              );
+              activeNode.textContent = activeNode.textContent.substring(
+                0,
+                cursor.startOffset
+              );
+            } else {
+              lContent = '&nbsp';
+            }
+
+            cursor.setStartAfter(activeNode);
+            cursor.surroundContents(newEl);
+
+            newEl.innerHTML = lContent;
+            createCursor(newEl);
+            activeNode = newEl;
             break;
-       }
+          default:
+            break;
+        }
+    })
+
+    el.addEventListener('keyup', (e) => {
+        switch (e.key) {
+            case 'ArrowUp':
+            case 'ArrowDown':
+            case 'ArrowLeft':
+            case 'ArrowRight':
+                let newCursor = getCursor();
+                activeNode = newCursor.startContainer.parentElement;
+                break;
+            default:
+                break;
+        }
     })
 
     el.addEventListener('focus', (e) => {
-        if (el.children[0] == placeholderTag) {
-        el.innerHTML = ""
-        let tagP = addTag()
-        el.appendChild(tagP)
-        createCursor(tagP)
+        if(el.children[0] == placeholderTag) {
+            e.preventDefault()
+            el.innerHTML = ""
+            let tagP = addTag()
+            activeNode = tagP;
+            el.appendChild(tagP)
+            tagP.innerHTML = '&nbsp';
+            createCursor(tagP)
         }
     })
 
@@ -40,10 +79,16 @@ function Editor(settings) {
             el.children[0].textContent.length == 0 &&
             el.children.length == 1
         ){
-            el.innerHTML  = ""
+            el.innerHTML = ""
             el.appendChild(placeholderTag)
         }
     })
+
+    el.addEventListener('click', (e) => {
+        let cursor = getCursor()
+        activeNode = cursor.startContainer.parentElement;
+    })
+
     return this
 }
 
@@ -56,6 +101,7 @@ var richTextEditor = new Editor(
 
 function addTag() {
     let el = document.createElement('p')
+    el.innerHTML = "&nbsp"
     return el
 }
 
@@ -66,7 +112,8 @@ function getCursor() {
     return cursor
 }
 
-function createCursor(el) {
+/* el oznacza element w którym będzie kursor */
+function createCursor(el){
     let selection = getSelection()
     let range = new Range()
     range.setStart(el, 0)
@@ -75,3 +122,12 @@ function createCursor(el) {
     selection.addRange(range)
 }
 
+
+
+/*
+    var newEditor = new Editor({
+        el: document.getElementById("editor"),
+        placeholder: "Wprowadź jakiś tekst"
+    })
+*/
+//new
