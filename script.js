@@ -1,103 +1,96 @@
-function bold() {
-    document.execCommand("bold")
-}
+function Editor(settings) {
+    let editor = settings.editor
+    let placeholderTag = null
 
-function italic() {
-    document.execCommand("italic")
-}
-
-function copy() {
-    document.execCommand("copy")
-}
-
-function paste() {
-    navigator.clipboard.readText().then(text => {
-        let selection = window.getSelection()
-        let cursor = selection.getRangeAt(0)
-        let el =  document.createElement('div')
-        text = text.replace('\n', "<br>")
-        el.innerHTML = text
-        cursor.insertNode(el)
-    })
-}
-
-function changeFont() {
-    document.execCommand("fontName", false, "Arial")
-}
-
-let fonts = [
-    "Arial",
-    "Calibri",
-    "Bebas Neue Bold",
-    "Comic Sans MS",
-    "DejaVu Sans Mono",
-    "Ink Free",
-    "Microsoft Himalaya",
-    "Segoe Script"
-]
-
-let range = null
-let currentFont = 'Arial'
-let fontList = document.getElementById("font-list")
-
-for (let font of fonts) {
-    let fontItem = document.createElement("div")
-    fontItem.setAttribute("class", "font-item")
-    let fontName = document.createElement("h1")
-    fontName.style.fontFamily = font
-    fontName.textContent = font
-    fontItem.appendChild(fontName)
-
-    fontItem.addEventListener("mouseover", () => {
-        document.execCommand("fontName", false, font)
-    })
-
-    fontItem.addEventListener("mousedown", (event) => {
-        event.preventDefault()
-        currentFont = font
-        let currFont = document.getElementById("font-current")
-        currFont.children[0].style.fontFamily = font
-        currFont.children[0].textContent = font
-    })
-
-    fontList.appendChild(fontItem)
-}
-
-fontList.addEventListener("mouseleave", () => {
-    document.execCommand("fontName", false, currentFont)
-})
-
-let editor = document.getElementById("editor")
-editor.addEventListener('blur', (e) => {
-    let selection = window.getSelection()
-    let newRnge = selection.getRangeAt(0)
-})
-
-let fontSize = document.getElementById("font-size")
-fontSize.addEventListener('input', (e) => {
-    let newFontSize = parseInt(e.target.value)
-    if(!isNaN(newFontSize)) {
-        let selection = window.getSelection()
-        selection.removeAllRanges()
-        selection.addRange(range)
-        document.execCommand("fontSize", false, newFontSize)
+    {
+        editor.setAttribute('contenteditable', 'true');
+        editor.innerHTML = '';
+        placeholderTag = document.createElement('span');
+        placeholderTag.textContent = settings.placeholder;
+        editor.appendChild(placeholderTag);
     }
-})
 
-fontSize.addEventListener("mousedown", (e) => {
-    let selection = window.getSelection()
-    range = selection.getRangeAt(0)
-})
+    {   
+        /* SETUP TOOLBAR */
 
-let state = {
-    value: ''
+        let fontSize = document.getElementById('font-size')
+        fontSize.addEventListener('input', (e) => {
+            console.log(window.getSelection().getRangeAt(0))
+        })
+
+        for (let tag of ['p', 'h1', 'h2', 'h3', 'h4']) {
+            let div = document.createElement('div');
+            div.innerHTML = tag;
+            
+            div.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                let newEl = document.createElement(tag);
+                let cursor = window.getSelection().getRangeAt(0)
+                let cursorOffset = cursor.startOffset;
+
+                if(cursor.startContainer.nodeName == '#text'){
+                    newEl.innerHTML = cursor.startContainer.parentNode.innerHTML;
+                    editor.replaceChild(newEl, cursor.startContainer.parentNode);
+                } else {
+                    newEl.innerHTML = cursor.startContainer.innerHTML;
+                    editor.replaceChild(newEl, cursor.startContainer);
+                }
+
+                let range = new Range();
+                newEl.childNodes.length > 0 ?
+                    range.setStart(newEl.childNodes[0], cursorOffset) :
+                    range.setStart(newEl, cursorOffset)
+
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+            });
+
+            document.getElementById('tags').appendChild(div);
+        }
+    }
+
+    editor.addEventListener('keydown', (e) => {
+        switch (e.key) {
+            case 'Backspace':                
+                if(editor.children.length == 1 && editor.children[0].textContent.length == 0) {
+                        e.preventDefault()
+                }
+                break;
+            default:
+                break;
+        }
+    })
+
+    editor.addEventListener('focus', (e) => {
+        if (editor.children[0] == placeholderTag) {
+            e.preventDefault();
+            editor.replaceChild(document.createElement('p'), placeholderTag);
+
+            let range = new Range();
+            range.setStart(editor.childNodes[0], 0);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+        }
+    })
+
+    editor.addEventListener('blur', (e) => {
+      if (
+        editor.children.length == 1 &&
+        editor.children[0].textContent.length == 0
+      ) {
+        editor.replaceChild(placeholderTag, editor.children[0]);
+      }
+    });
+
+    return this
 }
 
-document.getElementById("editor")
-    .addEventListener("keydown", (e) => {
-        e.preventDefault()
-        let key = e.key
-        if(k == 'Enter') key = '<br>'
-        state.value += key
-        editor.innerHTML = state.value
-    })
+var richTextEditor = new Editor({
+  editor: document.getElementById('editor'),
+  placeholder: 'Rozpocznij pisanie artykułu',
+});
+
+
+function Toolbar() {
+
+}
