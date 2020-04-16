@@ -7,40 +7,59 @@ function italic() {
 }
 
 function copy() {
+    console.log(window.getSelection().getRangeAt(0).cloneContents())
     document.execCommand("copy")
 }
 
+document.getElementById("sel").addEventListener('mousedown',
+function sel(e) {
+    e.preventDefault()
+    let selection = window.getSelection()
+    selection.removeAllRanges()
+    selection.addRange(range)
+}
+)
+
 function paste() {
-    navigator.clipboard.readText().then(text => {
+    navigator.clipboard.readText().then(text =>{
+        text = text.replace('\n', "<br>")
+
         let selection = window.getSelection()
         let cursor = selection.getRangeAt(0)
-        let el =  document.createElement('div')
-        text = text.replace('\n', "<br>")
+        let el = document.createElement('div')
         el.innerHTML = text
-        cursor.insertNode(el)
+        cursor.insertNode(
+            el
+        )
+
+
     })
+
 }
 
 function changeFont() {
-    document.execCommand("fontName", false, "Arial")
+    document.execCommand(
+        "fontName", 
+        false, 
+        "Arial"
+    )
 }
 
 let fonts = [
-    "Arial",
     "Calibri",
-    "Bebas Neue Bold",
-    "Comic Sans MS",
-    "DejaVu Sans Mono",
-    "Ink Free",
-    "Microsoft Himalaya",
-    "Segoe Script"
+    "Bebas Neue",
+    "DejaVu Serif",
+    "Impact",
+    "Segoe Script",
+    "Comic Sans MS",    
+    "System"
 ]
 
 let range = null
-let currentFont = 'Arial'
+let currentFont = "Calibri"
 let fontList = document.getElementById("font-list")
 
-for (let font of fonts) {
+for(let font of fonts){
     let fontItem = document.createElement("div")
     fontItem.setAttribute("class", "font-item")
     let fontName = document.createElement("h1")
@@ -67,16 +86,17 @@ fontList.addEventListener("mouseleave", () => {
     document.execCommand("fontName", false, currentFont)
 })
 
+
 let editor = document.getElementById("editor")
 editor.addEventListener('blur', (e) => {
     let selection = window.getSelection()
-    let newRnge = selection.getRangeAt(0)
+    range = selection.getRangeAt(0)
 })
 
 let fontSize = document.getElementById("font-size")
 fontSize.addEventListener('input', (e) => {
     let newFontSize = parseInt(e.target.value)
-    if(!isNaN(newFontSize)) {
+    if(!isNaN(newFontSize)){
         let selection = window.getSelection()
         selection.removeAllRanges()
         selection.addRange(range)
@@ -93,11 +113,12 @@ let state = {
     value: ''
 }
 
+
 document.getElementById("editor")
     .addEventListener("keydown", (e) => {
         e.preventDefault()
         let key = e.key
-        if(k == 'Enter') key = '<br>'
+        if(key == 'Enter') key = '<br>'
         state.value += key
         editor.innerHTML = state.value
     })

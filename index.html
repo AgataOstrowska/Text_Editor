@@ -7,39 +7,41 @@
     <title>Simple Editor</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div id="toolbar">
-        <button onclick="bold()" class="btn">
-            bold
-        </button> 
-        <button onclick="italic()" class="btn">
-            italic
-        </button>  
-        <button onclick="copy()" class="btn">
-            copy
-        </button>  
-        <button onclick="paste()" class="btn">
-            paste
-        </button>    
-    </div>
+    <body>
+        <div id="toolbar">
+            <button onclick="bold()" class="btn">
+                bold
+            </button>
+            <button onclick="italic()" class="btn">
+                italic
+            </button>
 
-    <div class="font">
-        <div id="font-current" class="font-item">
-            <h1 style="font-family: 'Arial';">
-                Arial
-            </h1>
-        </div>
-        <div id="font-list">
+            <button onclick="copy()" class="btn">
+                copy
+            </button>
+            <button onclick="paste()" class="btn">
+                paste
+            </button>
 
-        </div>
+            <div class="font">
+                <div id="font-current" class="font-item">
+                    <h1 style="font-family: 'Calibri'">
+                        Calibri
+                    </h1>
+                </div>
+                <div id="font-list"> 
+                </div>
+            </div>
+
             <div class="font-size">
                 <input id="font-size" type="number" value="1">
             </div>
-    </div>
+        </div>
 
-    <div id="editor" contenteditable>
+        <div id="editor" contenteditable>
+        
+        </div>
 
-    </div>
-    <script src="script.js"></script>
-</body>
+        <script src="script.js"></script>
+    </body>
 </html>
