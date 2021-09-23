@@ -31,10 +31,7 @@ function paste() {
         cursor.insertNode(
             el
         )
-
-
     })
-
 }
 
 function changeFont() {
@@ -112,7 +109,6 @@ fontSize.addEventListener("mousedown", (e) => {
 let state = {
     value: ''
 }
-
 
 document.getElementById("editor")
     .addEventListener("keydown", (e) => {
